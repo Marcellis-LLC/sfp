@@ -1,0 +1,58 @@
+import type { GHLBody } from "../schemas/ghl.schema";
+import type { Job } from "../schemas/job.schema";
+
+const normalizeAny = (value: unknown): string => {
+  if (value == null) return "";
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "number" || typeof value === "boolean")
+    return String(value);
+  return "";
+};
+
+// Service Fusion accepted custom fields
+const SERVICE_FUSION_CUSTOM_FIELD_MAP: Record<string, string> = {
+  "Shackle Code": "Shackle Code",
+  "CBS Code": "CBS Code",
+  "Mech Box Code": "Mech Box Code",
+  "Alarm Code": "Alarm Code",
+  Sqft: "Sq Ft",
+  Bedrooms: "Bedrooms",
+  "Opportunity ID": "GHL Opportunity ID",
+};
+
+export function transformGHLToJob(body: GHLBody): Job {
+  const location = body.location;
+  const payment = body.payment;
+  const customer = payment?.customer;
+  const custom = body.customData ?? {};
+
+  const lineItems = payment?.line_items ?? [];
+
+  return {
+    description: lineItems.map((item) => item.title).join(" and "),
+    tech_notes: normalizeAny(custom["Opportunity Notes"]),
+    customer_name: normalizeAny(customer?.name),
+    // parent_customer: normalizeAny(custom["Service Fusion ID"]),
+    status: "unscheduled",
+    contact_first_name: normalizeAny(customer?.first_Name),
+    contact_last_name: normalizeAny(customer?.last_Name),
+    street_1: normalizeAny(location?.address),
+    city: normalizeAny(location?.city),
+    state_prov: normalizeAny(location?.state),
+    postal_code: normalizeAny(location?.postalCode),
+    location_name: normalizeAny(location?.address),
+
+    // ✅ ONLY allowed + mapped custom fields
+    custom_fields: Object.entries(custom)
+      .filter(([key]) => key in SERVICE_FUSION_CUSTOM_FIELD_MAP)
+      .map(([key, value]) => ({
+        name: SERVICE_FUSION_CUSTOM_FIELD_MAP[key],
+        value: normalizeAny(value),
+      })),
+
+    tasks: lineItems.map((item) => ({
+      description: item.title,
+      is_completed: false,
+    })),
+  };
+}

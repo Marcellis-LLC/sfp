@@ -1,47 +1,49 @@
-import express, { Request, Response } from "express";
-import { env } from "./config/env.js";
-import crypto from "crypto";
+import express from "express";
+import { env } from "./env";
+import { validateBody } from "./lib/validate";
+import { ghlWebhookSchema } from "./schemas/ghl.schema";
+import { transformGHLToJob } from "./transformers/transformGHLToJob";
+import { serviceFusionClient } from "./clients/serviceFusion.client";
 
 const app = express();
 
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 
-type StoredPayload = {
-  id: string;
-  receivedAt: string;
-  body: unknown;
-};
-
-const receivedPayloads: Record<string, unknown>[] = [];
-
-app.post("/webhook/ghl", (req: Request, res: Response) => {
-  const stored: StoredPayload = {
-    id: crypto.randomUUID(),
-    receivedAt: new Date().toISOString(),
-    body: req.body,
-  };
-
-  receivedPayloads.push(stored);
-
-  console.log("Received GHL payload:", stored);
-
-  res.status(200).json({
-    success: true,
-    message: "Payload received",
-  });
+app.get("/health", (_req, res) => {
+  res.status(200).json({ ok: true });
 });
 
-app.get("/debug/payloads", (_req: Request, res: Response) => {
-  res.json({
-    count: receivedPayloads.length,
-    payloads: receivedPayloads,
-  });
-});
+app.post("/webhook/ghl", validateBody(ghlWebhookSchema), async (req, res) => {
+  try {
+    const webhook = req.body;
 
-app.get("/health", (_req: Request, res: Response) => {
-  res.json({ status: "ok" });
+    console.log("Received GHL webhook: ", webhook);
+
+    const job = transformGHLToJob(webhook.body);
+
+    console.log("Transformed job: ", job);
+
+    const response = await serviceFusionClient.post("/jobs", job);
+
+    console.log("Service Fusion response", {
+      status: response.status,
+      data: response.data,
+    });
+
+    return res.status(200).json({ created: true });
+  } catch (error: any) {
+    console.error("Webhook processing failed", {
+      message: error?.message,
+      status: error?.response?.status,
+      data: error?.response?.data,
+    });
+
+    return res.status(500).json({
+      error: "Failed to create job",
+    });
+  }
 });
 
 app.listen(env.PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${env.PORT}`);
+  console.log(`🚀 Server listening on http://localhost:${env.PORT}`);
 });
