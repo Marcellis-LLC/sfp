@@ -21,11 +21,9 @@ const SERVICE_FUSION_CUSTOM_FIELD_MAP: Record<string, string> = {
 };
 
 export function transformGHLToJob(body: GHLBody): Job {
-  const location = body.location;
   const payment = body.payment;
   const customer = payment?.customer;
   const custom = body.customData ?? {};
-
   const lineItems = payment?.line_items ?? [];
 
   return {
@@ -36,11 +34,12 @@ export function transformGHLToJob(body: GHLBody): Job {
     status: "unscheduled",
     contact_first_name: normalizeAny(customer?.first_Name),
     contact_last_name: normalizeAny(customer?.last_Name),
-    street_1: normalizeAny(location?.address),
-    city: normalizeAny(location?.city),
-    state_prov: normalizeAny(location?.state),
-    postal_code: normalizeAny(location?.postalCode),
-    location_name: normalizeAny(location?.address),
+    street_1: normalizeAny(custom["Job Address 1"]),
+    street_2: normalizeAny(custom["Job Address 2"]),
+    city: normalizeAny(custom["Job City"]),
+    state_prov: normalizeAny(custom["Job State"]),
+    postal_code: normalizeAny(custom["Job Zip Code"]),
+    location_name: normalizeAny(custom["Job Address 1"]),
 
     // ✅ ONLY allowed + mapped custom fields
     custom_fields: Object.entries(custom)
