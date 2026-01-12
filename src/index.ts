@@ -13,22 +13,22 @@ app.get("/health", (_req, res) => {
   res.status(200).json({ ok: true });
 });
 
-app.post("/webhook/ghl", validateBody(ghlWebhookSchema), async (req, res) => {
+app.post("/webhook/ghl", async (req, res) => {
   try {
     const webhook = req.body;
 
     console.log("Received GHL webhook: ", webhook);
 
-    // const job = transformGHLToJob(webhook.body);
+    const job = transformGHLToJob(webhook.body);
 
-    // console.log("Transformed job: ", job);
+    console.log("Transformed job: ", job);
 
-    // const response = await serviceFusionClient.post("/jobs", job);
+    const response = await serviceFusionClient.post("/jobs", job);
 
-    // console.log("Service Fusion response", {
-    //   status: response.status,
-    //   data: response.data,
-    // });
+    console.log("Service Fusion response", {
+      status: response.status,
+      data: response.data,
+    });
 
     return res.status(200).json({ created: true });
   } catch (error: any) {
