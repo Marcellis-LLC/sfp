@@ -9,7 +9,6 @@ const normalizeAny = (value: unknown): string => {
   return "";
 };
 
-// Service Fusion accepted custom fields
 const SERVICE_FUSION_CUSTOM_FIELD_MAP: Record<string, string> = {
   "Shackle Code": "Shackle Code",
   "CBS Code": "CBS Code",
@@ -47,7 +46,6 @@ export function transformGHLToJob(body: GHLWebhook): Job {
           name: SERVICE_FUSION_CUSTOM_FIELD_MAP[key],
           value: normalizeAny(value),
         })),
-
       {
         name: "Invoice Total",
         value:
