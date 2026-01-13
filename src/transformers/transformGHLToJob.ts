@@ -40,15 +40,22 @@ export function transformGHLToJob(body: GHLWebhook): Job {
     state_prov: normalizeAny(custom["Job State"]),
     postal_code: normalizeAny(custom["Job Zip Code"]),
     location_name: normalizeAny(custom["Job Address 1"]),
+    custom_fields: [
+      ...Object.entries(custom)
+        .filter(([key]) => key in SERVICE_FUSION_CUSTOM_FIELD_MAP)
+        .map(([key, value]) => ({
+          name: SERVICE_FUSION_CUSTOM_FIELD_MAP[key],
+          value: normalizeAny(value),
+        })),
 
-    // ✅ ONLY allowed + mapped custom fields
-    custom_fields: Object.entries(custom)
-      .filter(([key]) => key in SERVICE_FUSION_CUSTOM_FIELD_MAP)
-      .map(([key, value]) => ({
-        name: SERVICE_FUSION_CUSTOM_FIELD_MAP[key],
-        value: normalizeAny(value),
-      })),
-
+      {
+        name: "Invoice Total",
+        value:
+          payment?.total_amount !== undefined
+            ? String(payment.total_amount)
+            : "0",
+      },
+    ],
     tasks: lineItems.map((item) => ({
       description: item.title,
       is_completed: false,
