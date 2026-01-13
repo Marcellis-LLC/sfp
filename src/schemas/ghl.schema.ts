@@ -14,6 +14,11 @@ const ghlLineItemSchema = z.looseObject({
 });
 
 const ghlPaymentSchema = z.looseObject({
+  total_amount: custom((val) => {
+    if (typeof val === "string") return parseFloat(val);
+    if (typeof val === "number") return val;
+    return 0;
+  }),
   line_items: z.array(ghlLineItemSchema).optional(),
   customer: ghlCustomerSchema.optional(),
 });
