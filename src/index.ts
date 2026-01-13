@@ -1,7 +1,5 @@
 import express from "express";
 import { env } from "./env";
-// import { validateBody } from "./lib/validate";
-// import { ghlWebhookSchema } from "./schemas/ghl.schema";
 import { transformGHLToJob } from "./transformers/transformGHLToJob";
 import { serviceFusionClient } from "./clients/serviceFusion.client";
 import { GHLWebhook } from "./schemas/ghl.schema";
