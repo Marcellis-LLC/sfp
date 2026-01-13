@@ -1,4 +1,4 @@
-import type { GHLBody } from "../schemas/ghl.schema";
+import type { GHLWebhook } from "../schemas/ghl.schema";
 import type { Job } from "../schemas/job.schema";
 
 const normalizeAny = (value: unknown): string => {
@@ -20,7 +20,7 @@ const SERVICE_FUSION_CUSTOM_FIELD_MAP: Record<string, string> = {
   "Opportunity ID": "GHL Opportunity ID",
 };
 
-export function transformGHLToJob(body: GHLBody): Job {
+export function transformGHLToJob(body: GHLWebhook): Job {
   const payment = body.payment;
   const customer = payment?.customer;
   const custom = body.customData ?? {};

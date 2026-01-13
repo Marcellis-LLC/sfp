@@ -4,6 +4,7 @@ import { env } from "./env";
 // import { ghlWebhookSchema } from "./schemas/ghl.schema";
 import { transformGHLToJob } from "./transformers/transformGHLToJob";
 import { serviceFusionClient } from "./clients/serviceFusion.client";
+import { GHLWebhook } from "./schemas/ghl.schema";
 
 const app = express();
 
@@ -15,11 +16,11 @@ app.get("/health", (_req, res) => {
 
 app.post("/webhook/ghl", async (req, res) => {
   try {
-    const webhook = req.body;
+    const webhook: GHLWebhook = req.body;
 
     console.log("Received GHL webhook: ", webhook);
 
-    const job = transformGHLToJob(webhook.body);
+    const job = transformGHLToJob(webhook);
 
     console.log("Transformed job: ", job);
 

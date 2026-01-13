@@ -1,14 +1,6 @@
-import { z } from "zod";
+import { custom, z } from "zod";
 
 const emptyOrString = z.union([z.string(), z.literal("")]).optional();
-
-const ghlLocationSchema = z.looseObject({
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  country: z.string().optional(),
-  postalCode: z.string().optional(),
-});
 
 const ghlCustomerSchema = z.looseObject({
   first_Name: emptyOrString,
@@ -45,17 +37,9 @@ const ghlCustomDataSchema = z.looseObject({
   "Mech Box Code": emptyOrString,
 });
 
-export const ghlBodySchema = z.looseObject({
-  location: ghlLocationSchema.optional(),
+export const ghlWebhookSchema = z.looseObject({
   payment: ghlPaymentSchema.optional(),
   customData: ghlCustomDataSchema.optional(),
 });
 
-export const ghlWebhookSchema = z.looseObject({
-  id: z.string(),
-  receivedAt: z.string(),
-  body: ghlBodySchema,
-});
-
 export type GHLWebhook = z.infer<typeof ghlWebhookSchema>;
-export type GHLBody = z.infer<typeof ghlBodySchema>;
