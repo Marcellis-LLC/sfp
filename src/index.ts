@@ -61,9 +61,17 @@ app.post("/webhook/service-fusion", async (req, res) => {
     `/jobs/${jobId}?expand=custom_fields`
   );
 
+  const payload = {
+    jobId,
+    opportunityId: response.data.custom_fields?.find(
+      (cf: any) => cf.name === "GHL Opportunity ID"
+    )?.value,
+    invoiceTotal: response.data.total,
+  };
+
   await axios.post(
     "https://services.leadconnectorhq.com/hooks/n0UnN1BV0FUUVarhkcZU/webhook-trigger/1eefb0c9-6061-45da-8a5b-57bd0f4b3bfc",
-    response.data,
+    payload,
     {
       headers: {
         "Content-Type": "application/json",
