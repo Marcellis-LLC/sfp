@@ -3,6 +3,7 @@ import { env } from "./env";
 import { transformGHLToJob } from "./transformers/transformGHLToJob";
 import { serviceFusionClient } from "./clients/serviceFusion.client";
 import { GHLWebhook } from "./schemas/ghl.schema";
+import axios from "axios";
 
 type ServiceFusionWebhook = {
   "Service Fusion Job ID": string;
@@ -57,6 +58,16 @@ app.post("/webhook/service-fusion", async (req, res) => {
   console.log(`Processing Service Fusion Job ID: ${jobId}`);
 
   const response = await serviceFusionClient.get(`/jobs/${jobId}`);
+
+  await axios.post(
+    "https://services.leadconnectorhq.com/hooks/n0UnN1BV0FUUVarhkcZU/webhook-trigger/1eefb0c9-6061-45da-8a5b-57bd0f4b3bfc",
+    response.data,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   console.log("Fetched job details from Service Fusion", {
     status: response.status,
