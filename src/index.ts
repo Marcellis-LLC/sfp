@@ -63,6 +63,7 @@ app.post("/webhook/service-fusion", async (req, res) => {
 
   const payload = {
     jobId,
+    jobStatus: response.data.status,
     opportunityId: response.data.custom_fields?.find(
       (cf: any) => cf.name === "GHL Opportunity ID"
     )?.value,
