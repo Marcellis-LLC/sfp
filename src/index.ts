@@ -4,10 +4,7 @@ import { transformGHLToJob } from "./transformers/transformGHLToJob";
 import { serviceFusionClient } from "./clients/serviceFusion.client";
 import { GHLWebhook } from "./schemas/ghl.schema";
 
-type ServiceFusionWebhook = {
-  opportunityId: string;
-  jobId: string;
-};
+type ServiceFusionWebhook = { opportunityId: string };
 
 const app = express();
 
@@ -51,16 +48,9 @@ app.post("/webhook/ghl", async (req, res) => {
 app.post("/webhook/service-fusion", async (req, res) => {
   const webhook: ServiceFusionWebhook = req.body;
 
-  const { jobId } = webhook;
+  const { opportunityId } = webhook;
 
-  console.log(
-    "Received Service Fusion webhook: ",
-    req.body as ServiceFusionWebhook
-  );
-
-  const job = await serviceFusionClient.get(`/jobs/${jobId}`);
-
-  console.log("Fetched job details: ", job.data);
+  console.log("Received Opportunity: ", opportunityId);
 
   // Further processing can be done here
   res.status(200).json({ received: true });
