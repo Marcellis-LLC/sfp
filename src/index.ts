@@ -69,6 +69,8 @@ app.post("/webhook/service-fusion", async (req, res) => {
     invoiceTotal: response.data.total,
   };
 
+  console.log("Transformed payload: ", payload);
+
   await axios.post(
     "https://services.leadconnectorhq.com/hooks/n0UnN1BV0FUUVarhkcZU/webhook-trigger/1eefb0c9-6061-45da-8a5b-57bd0f4b3bfc",
     payload,
