@@ -4,6 +4,10 @@ import { transformGHLToJob } from "./transformers/transformGHLToJob";
 import { serviceFusionClient } from "./clients/serviceFusion.client";
 import { GHLWebhook } from "./schemas/ghl.schema";
 
+type ServiceFusionWebhook = {
+  "Service Fusion Job ID": string;
+};
+
 const app = express();
 
 app.use(express.json({ limit: "1mb" }));
@@ -43,30 +47,23 @@ app.post("/webhook/ghl", async (req, res) => {
   }
 });
 
-let lastWebhookData: any = null;
-
 app.post("/webhook/service-fusion", async (req, res) => {
-  console.log("Received Webhook: ", req.body);
-  lastWebhookData = req.body;
-  res.status(200).json({ received: true });
-});
+  const webhook: ServiceFusionWebhook = req.body;
 
-app.get("/webhook/view", (req, res) => {
-  res.send(`
-    <html>
-      <head>
-        <title>Webhook Payload</title>
-        <style>
-          body { font-family: monospace; background: #111; color: #0f0; }
-          pre { white-space: pre-wrap; word-wrap: break-word; }
-        </style>
-      </head>
-      <body>
-        <h1>Last Webhook Payload</h1>
-        <pre>${JSON.stringify(lastWebhookData, null, 2)}</pre>
-      </body>
-    </html>
-  `);
+  console.log("Received Service Fusion webhook: ", webhook);
+
+  const { "Service Fusion Job ID": jobId } = webhook;
+
+  console.log(`Processing Service Fusion Job ID: ${jobId}`);
+
+  const response = await serviceFusionClient.get(`/jobs/${jobId}`);
+
+  console.log("Fetched job details from Service Fusion", {
+    status: response.status,
+    data: response.data,
+  });
+
+  res.status(200).json({ received: true });
 });
 
 app.listen(env.PORT, () => {
