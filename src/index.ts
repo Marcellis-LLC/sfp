@@ -57,7 +57,9 @@ app.post("/webhook/service-fusion", async (req, res) => {
 
   console.log(`Processing Service Fusion Job ID: ${jobId}`);
 
-  const response = await serviceFusionClient.get(`/jobs/${jobId}`);
+  const response = await serviceFusionClient.get(
+    `/jobs/${jobId}?expand=custom_fields`
+  );
 
   await axios.post(
     "https://services.leadconnectorhq.com/hooks/n0UnN1BV0FUUVarhkcZU/webhook-trigger/1eefb0c9-6061-45da-8a5b-57bd0f4b3bfc",
